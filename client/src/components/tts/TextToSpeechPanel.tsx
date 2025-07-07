@@ -259,13 +259,8 @@ export default function TextToSpeechPanel() {
                 />
                 <Label htmlFor="word-timestamps" className="text-sm">Word Timestamps</Label>
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="stream-audio"
-                  checked={streamAudio}
-                  onCheckedChange={(checked) => setStreamAudio(!!checked)}
-                />
-                <Label htmlFor="stream-audio" className="text-sm">Stream Audio</Label>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Word timestamps are only supported in English
               </div>
             </div>
 

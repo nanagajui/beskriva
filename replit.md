@@ -127,6 +127,13 @@ This is a Progressive Web App (PWA) that provides a unified dashboard for all Le
 
 ## Changelog
 
+- January 07, 2025. Fixed all major functionality issues:
+  - STT Recording Controls: Added proper stop/pause/resume with file storage integration
+  - TTS Voice Selection: Updated with actual Lemonfox.ai voice names (50+ voices)
+  - TTS Language Support: Added language selector with 9 supported languages
+  - API Parameter Mapping: All calls now use correct Lemonfox.ai parameters
+  - Timestamp Handling: Fixed Date object conversion in chat messages
+  - UI/UX Improvements: Enhanced recording controls and voice selection interface
 - July 07, 2025. Initial setup
 
 ## User Preferences
