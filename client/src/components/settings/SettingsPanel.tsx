@@ -168,9 +168,16 @@ export default function SettingsPanel() {
                   {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Your API key is stored locally and never sent to our servers.
-              </p>
+              <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                <div className="flex items-start space-x-2">
+                  <AlertTriangle className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-blue-700 dark:text-blue-300">
+                    <strong>Security:</strong> Your API key is stored locally on your device only. 
+                    It never gets shared or deployed with this app. Each user must provide their own API key from{" "}
+                    <a href="https://lemonfox.ai/apis/keys" target="_blank" rel="noopener noreferrer" className="underline">lemonfox.ai</a>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div>
