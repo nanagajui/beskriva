@@ -74,7 +74,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         
         <div className={`mt-2 flex items-center space-x-2 ${isUser ? "justify-end" : ""}`}>
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {message.timestamp.toLocaleTimeString([], { 
+            {new Date(message.timestamp).toLocaleTimeString([], { 
               hour: "2-digit", 
               minute: "2-digit" 
             })}

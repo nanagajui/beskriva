@@ -115,6 +115,15 @@ export const useChatStore = create<ChatState>()(
         maxTokens: state.maxTokens,
         streaming: state.streaming,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.messages) {
+          // Ensure timestamps are Date objects after rehydration
+          state.messages = state.messages.map(msg => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }));
+        }
+      },
     }
   )
 );
