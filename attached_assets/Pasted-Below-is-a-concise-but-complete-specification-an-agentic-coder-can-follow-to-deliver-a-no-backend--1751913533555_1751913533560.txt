@@ -1,0 +1,172 @@
+Below is a concise but complete specification an “agentic coder” can follow to deliver a no‑backend, device‑friendly front‑end for all Lemonfox APIs, with chat‑centric orchestration and per‑API control panels.
+
+---
+
+## 1. Executive summary
+
+Lemonfox exposes four OpenAI‑compatible endpoints—Speech‑to‑Text (Whisper v3), Text‑to‑Speech, Chat (Llama 8B/70B) and Stable‑Diffusion XL image generation—each accepting a simple `POST` and returning JSON or binary payloads.([lemonfox.ai][1], [lemonfox.ai][2], [lemonfox.ai][3], [lemonfox.ai][4])
+Because you want **zero infrastructure**, the recommended delivery is a **Progressive Web App (PWA) built with React + TypeScript + Vite**, installable on Android Chrome and desktop browsers, then optionally wrapped with **Capacitor (mobile) or Tauri (desktop)** to obtain native file‑picker/FS APIs when you need them.([bitcot.com][5], [developer.mozilla.org][6], [ionic.io][7], [go.ionic.io][8], [github.com][9])
+All user data (API key, transcripts, generated media, last‑used settings) is stored in **browser IndexedDB/localStorage** and downloadable blobs; no server or database is required.
+
+---
+
+## 2. Recommended tech stack
+
+| Layer      | Choice                                                                                                    | Rationale                                                             |
+| ---------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| UI & state | **React 18 + TypeScript + Zustand**                                                                       | Fast functional UI, shallow learning curve, easy cross‑platform       |
+| Bundler    | **Vite**                                                                                                  | Smaller bundle, faster HMR than Next for a pure‑client PWA            |
+| Styling    | **Tailwind CSS**                                                                                          | Utility classes = minimal boilerplate, dark‑mode out of the box       |
+| Packaging  | **PWA first** (Web Manifest + Service Worker); **Capacitor** for APK build; **Tauri** for Win/macOS/Linux | One code‑base; native FS APIs for local saving; tiny desktop binaries |
+| Speech I/O | **Web Speech API** for on‑device mic capture; optional **MediaRecorder** for fallback                     | No external service needed                                            |
+| File ops   | **File System Access API** when supported, else download‑blob fallback                                    | Lets users “Save to device” without back‑end                          |
+
+All of the above libraries run well inside both Capacitor shells and Tauri windows.([ionic.io][7], [go.ionic.io][8], [github.com][9], [akoskm.com][10])
+
+---
+
+## 3. High‑level architecture
+
+```
+ ┌──────────────┐    fetch()    ┌────────────────────┐
+ │   UI Layer   │◀─────────────▶│ Lemonfox REST APIs │
+ └──────────────┘               └────────────────────┘
+        │                                  ▲
+  Zustand store (global state)             │
+        │                                  │
+ ┌──────────────┐   IndexedDB / FS  ┌───────────────────┐
+ │   Storage    │◀──────────────────│  Downloaded media │
+ └──────────────┘                   └───────────────────┘
+```
+
+* **API Service module** – thin wrappers (`transcribe()`, `synthesize()`, `chat()`, `generateImage()`) that attach user API key and handle streaming (SSE) for chat.([lemonfox.ai][1], [lemonfox.ai][2], [lemonfox.ai][3], [lemonfox.ai][4])
+* **Agent Orchestrator** – interprets chat commands (`/image`, `/tts`, `/stt`, `/model`) or tool‑picker clicks, builds the correct request body, pushes status updates to the chat timeline.
+* **Settings slice** – stores last‑used parameters (voice, language, temperature, image size, etc.) in localStorage for instant recall.
+* **Media Utils** – converts Blob ↔ URL, prompts “Save file”, plays audio, previews images.
+
+---
+
+## 4. UI spec & user flows
+
+### 4.1 Navigation
+
+* **Tab bar / Drawer** (responsive): **Chat**, **Speech → Text**, **Text → Speech**, **Image Gen**, **Settings**.
+
+### 4.2 Chat (hub)
+
+* Slack‑like scroll view with bubbles.
+* **Input bar** supports text, mic record, and file‑attachment chip.
+* A **tool selector** (dropdown or quick‑slash) limits which APIs the agent may call automatically, preventing accidents.
+* Streaming responses appear token‑by‑token when `stream=true`.([lemonfox.ai][3])
+* Toolbar buttons: “Copy”, “Save as .txt”, “Regenerate”, “Use as prompt for image/TTS”.
+
+### 4.3 Speech‑to‑Text panel
+
+| Control                                       | Maps to API param                                  |
+| --------------------------------------------- | -------------------------------------------------- |
+| File picker / Drag‑drop / Recorder            | `file`                                             |
+| Language select (auto, or 100+ list)          | `language`                                         |
+| Response type (json / srt / vtt / text)       | `response_format`                                  |
+| Speaker diarization toggle (+ min/max fields) | `speaker_labels` / `min_speakers` / `max_speakers` |
+| “Translate to English” checkbox               | `translate`                                        |
+
+After POST to `/v1/audio/transcriptions` show the transcript, word‑level timestamps if requested, and buttons **Copy / Download**.([lemonfox.ai][1])
+
+### 4.4 Text‑to‑Speech panel
+
+* Text area (with char count) → `input`.
+* **Voice** dropdown (50+ options grouped by language).([lemonfox.ai][2])
+* Speed slider (0.5–4.0) → `speed`.
+* Format select (mp3, wav, ogg…) → `response_format`.([lemonfox.ai][2])
+* “Generate” streams audio → HTML5 player; **Save** downloads Blob.
+
+### 4.5 Image Generation panel
+
+* Prompt textarea (+ negative prompt).
+* Quantity spinner 1‑8 → `n`.
+* Size picker (512², 768², 1024²) → `size`.
+* Output mode (URL or Base64) → `response_format`.
+* Gallery view with download/delete.([lemonfox.ai][4])
+
+### 4.6 Settings panel
+
+* API key input (masked) stored in `localStorage`.
+* Toggle **EU cluster** (`https://eu-api.lemonfox.ai`) for GDPR.([lemonfox.ai][1])
+* Theme (light/dark/system).
+* Clear cache button.
+
+### 4.7 Keyboard & touch ergonomics
+
+* 48 px min tap‑targets (Material spec).
+* CSS Grid → two‑column layout on ≥768 px; single column on phones.
+* PWA Install prompt per MDN manifest rules.([developer.mozilla.org][6])
+
+---
+
+## 5. API ↔ UI quick‑reference
+
+| API            | Endpoint                | HTTP             | Mandatory UI fields | Optional UI fields                                                                                          |
+| -------------- | ----------------------- | ---------------- | ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Speech‑to‑Text | `/audio/transcriptions` | POST (multipart) | File/URL            | language, response\_format, speaker\_labels, min/max\_speakers, prompt, translate, timestamp\_granularities |
+| Text‑to‑Speech | `/audio/speech`         | POST (JSON)      | input               | voice, language, response\_format, speed, word\_timestamps                                                  |
+| Chat           | `/chat/completions`     | POST (JSON)      | messages, model     | max\_tokens, temperature, top\_p, stop, frequency/presence\_penalty, stream                                 |
+| SDXL           | `/images/generations`   | POST (JSON)      | prompt              | negative\_prompt, n, size, response\_format                                                                 |
+
+(All parameter definitions come from Lemonfox docs.([lemonfox.ai][1], [lemonfox.ai][2], [lemonfox.ai][2], [lemonfox.ai][3], [lemonfox.ai][4]))
+
+---
+
+## 6. State management & data persistence
+
+* **Zustand store slices:** `chatHistory`, `files`, `userSettings`.
+* **Persistence middleware** mirrors slices to localStorage; large binary Blobs are saved via the File System Access API or download link (fallback for Android < 13 and iOS).
+* When wrapped with **Capacitor/Tauri**, allow the native save‑dialog for better UX.([ionic.io][7], [github.com][9])
+
+---
+
+## 7. Security considerations
+
+* API key is never hard‑coded; it lives only in client storage and is inserted into the `Authorization` header at runtime.
+* Use `https://` always; Lemonfox requires it.
+* Warn users that localStorage is not encrypted; suggest a short‑lived key when possible.
+
+---
+
+## 8. Build & deployment
+
+1. `pnpm create vite my‑lemonfox --template react-ts`
+2. Add PWA plugin (`vite-plugin-pwa`) and register service worker.
+3. `npm run build` → yields `/dist` which can be hosted on any static server or side‑loaded as a PWA.
+4. For Android APK: `npx cap add android && npx cap open android`.
+5. For desktop: `tauri init && tauri build` (≤10 MB binary).([go.ionic.io][8], [github.com][9])
+
+---
+
+## 9. Extensibility roadmap
+
+* **Function calling**: add a simple JSON “tool manifest” so the chat model can suggest which Lemonfox endpoint to call, similar to OpenAI function calling.
+* **Plugin slot**: expose a context API so you can drop in future endpoints (e.g., embeddings) by declarative registration.
+* **Offline caching**: store generated images/audio in IndexedDB to revisit without new credits.
+
+---
+
+### Deliverables checklist for the coder
+
+1. React + Vite PWA scaffold with Tailwind and Zustand.
+2. API service wrappers with exhaustive TypeScript typings.
+3. Functional UI per section 4, responsive and accessible.
+4. Capacitor & Tauri config scripts.
+5. README documenting how to obtain Lemonfox API key and run the app locally.
+
+Follow this spec and you’ll have a single lightweight code‑base that behaves like a native app on your Android tablet, works offline for viewing previously generated assets, and gives you full control over every Lemonfox feature—all without standing up a server or database.
+
+[1]: https://www.lemonfox.ai/apis/speech-to-text "Speech-to-Text API"
+[2]: https://www.lemonfox.ai/apis/text-to-speech "Text-to-Speech API - TTS"
+[3]: https://www.lemonfox.ai/apis/chat "Open-Source LLM API - Lemonfox.ai"
+[4]: https://www.lemonfox.ai/apis/sdxl "Stable Diffusion XL API - Lemonfox.ai"
+[5]: https://www.bitcot.com/how-to-install-a-pwa-to-your-device/?utm_source=chatgpt.com "How to Install a PWA on iOS, Android, Windows & Mac [2025 Guide] - Bitcot"
+[6]: https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable?utm_source=chatgpt.com "Making PWAs installable - Progressive web apps | MDN"
+[7]: https://ionic.io/resources/articles/building-cross-platform-apps-with-capacitor?utm_source=chatgpt.com "Building Cross-Platform Apps with Capacitor | Ionic Article"
+[8]: https://go.ionic.io/capacitor?utm_source=chatgpt.com "Capacitor: A New Approach to Cross- Platform Development - Ionic"
+[9]: https://github.com/jiangjiji/tauri-desktop-note?utm_source=chatgpt.com "A fast and simple desktop sticky note app built with Tauri."
+[10]: https://akoskm.com/how-to-build-a-simple-file-browser-with-tauri/?utm_source=chatgpt.com "How to Build a Simple File Browser with Tauri - akoskm"
