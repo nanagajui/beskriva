@@ -33,7 +33,7 @@ export const useChatStore = create<ChatState>()(
     (set, get) => ({
       messages: [],
       isLoading: false,
-      model: "llama-8b-chat",
+      model: "llama-3.2-3b-instruct",
       temperature: 1.0,
       maxTokens: 2048,
       streaming: true,

@@ -6,12 +6,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useChatStore } from "@/lib/stores/useChatStore";
 import { useSettingsStore } from "@/lib/stores/useSettingsStore";
+import { chatCompletion } from "@/lib/api/lemonfox";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { MoreVertical } from "lucide-react";
 
 export default function ChatInterface() {
-  const { messages, addMessage, isLoading, model, setModel } = useChatStore();
+  const { messages, addMessage, isLoading, model, setModel, setIsLoading, temperature, maxTokens } = useChatStore();
   const { apiKey } = useSettingsStore();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -31,21 +32,91 @@ export default function ChatInterface() {
       return;
     }
 
+    // Add user message
     addMessage({
       role: "user",
       content,
       timestamp: new Date(),
     });
 
-    // Add assistant response logic here
-    // For now, add a placeholder response
-    setTimeout(() => {
+    // Check for special commands
+    if (content.startsWith('/')) {
+      handleCommand(content);
+      return;
+    }
+
+    // Set loading state
+    setIsLoading(true);
+
+    try {
+      // Prepare messages for API call
+      const apiMessages = messages.concat([{
+        role: "user" as const,
+        content,
+        timestamp: new Date(),
+      }]).map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
+      // Call Lemonfox.ai chat API
+      const response = await chatCompletion({
+        model,
+        messages: apiMessages,
+        temperature,
+        max_tokens: maxTokens,
+      });
+
+      // Add assistant response
+      if (response.choices && response.choices.length > 0) {
+        addMessage({
+          role: "assistant",
+          content: response.choices[0].message.content,
+          timestamp: new Date(),
+        });
+      } else {
+        throw new Error("No response from API");
+      }
+    } catch (error) {
+      console.error("Chat API error:", error);
       addMessage({
         role: "assistant",
-        content: "I'm ready to help you with speech-to-text, text-to-speech, and image generation. Use /stt, /tts, or /image commands to get started.",
+        content: "Sorry, I encountered an error while processing your request. Please check your API key and try again.",
         timestamp: new Date(),
       });
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCommand = (command: string) => {
+    const cmd = command.toLowerCase().trim();
+    
+    if (cmd === '/stt' || cmd.startsWith('/stt ')) {
+      addMessage({
+        role: "assistant",
+        content: "I'll help you with Speech-to-Text! Please go to the STT panel to upload an audio file or record your voice. You can access it from the sidebar navigation.",
+        timestamp: new Date(),
+      });
+    } else if (cmd === '/tts' || cmd.startsWith('/tts ')) {
+      addMessage({
+        role: "assistant",
+        content: "I'll help you with Text-to-Speech! Please go to the TTS panel to enter text and generate speech. You can access it from the sidebar navigation.",
+        timestamp: new Date(),
+      });
+    } else if (cmd === '/image' || cmd.startsWith('/image ')) {
+      addMessage({
+        role: "assistant",
+        content: "I'll help you with Image Generation! Please go to the Image panel to enter a prompt and generate images. You can access it from the sidebar navigation.",
+        timestamp: new Date(),
+      });
+    } else {
+      addMessage({
+        role: "assistant",
+        content: "I understand the following commands:\n• `/stt` - Speech-to-Text conversion\n• `/tts` - Text-to-Speech generation\n• `/image` - Image generation\n\nOr just chat with me normally!",
+        timestamp: new Date(),
+      });
+    }
   };
 
   return (
@@ -60,8 +131,12 @@ export default function ChatInterface() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="llama-8b-chat">Llama 8B Chat</SelectItem>
-                  <SelectItem value="llama-70b-chat">Llama 70B Chat</SelectItem>
+                  <SelectItem value="llama-3.2-3b-instruct">Llama 3.2 3B Instruct</SelectItem>
+                  <SelectItem value="llama-3.2-11b-instruct">Llama 3.2 11B Instruct</SelectItem>
+                  <SelectItem value="llama-3.2-90b-instruct">Llama 3.2 90B Instruct</SelectItem>
+                  <SelectItem value="llama-3.1-8b-instruct">Llama 3.1 8B Instruct</SelectItem>
+                  <SelectItem value="llama-3.1-70b-instruct">Llama 3.1 70B Instruct</SelectItem>
+                  <SelectItem value="llama-3.1-405b-instruct">Llama 3.1 405B Instruct</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="ghost" size="sm">
