@@ -12,7 +12,7 @@ import { useMediaRecorder } from "@/hooks/useMediaRecorder";
 import { useSettingsStore } from "@/lib/stores/useSettingsStore";
 import { useToast } from "@/hooks/use-toast";
 import { transcribeAudio } from "@/lib/api/lemonfox";
-import { Play, Pause, Copy, Download, Info } from "lucide-react";
+import { Play, Pause, Square, Copy, Download, Info, Trash2 } from "lucide-react";
 
 export default function SpeechToTextPanel() {
   const [file, setFile] = useState<File | null>(null);
@@ -27,7 +27,37 @@ export default function SpeechToTextPanel() {
   
   const { apiKey } = useSettingsStore();
   const { toast } = useToast();
-  const { isRecording, startRecording, stopRecording, recordingTime } = useMediaRecorder();
+  const { 
+    isRecording, 
+    isPaused, 
+    startRecording, 
+    stopRecording, 
+    pauseRecording, 
+    resumeRecording, 
+    recordingTime, 
+    recordedBlob, 
+    clearRecording,
+    error: recordingError 
+  } = useMediaRecorder({
+    onStop: (blob) => {
+      // Convert blob to File and set it
+      const audioFile = new File([blob], `recording-${Date.now()}.webm`, { 
+        type: blob.type 
+      });
+      setFile(audioFile);
+      toast({
+        title: "Recording Complete",
+        description: "Audio recording saved. You can now transcribe it.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Recording Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
 
   const handleFileSelect = (selectedFile: File) => {
     setFile(selectedFile);
@@ -43,10 +73,10 @@ export default function SpeechToTextPanel() {
       return;
     }
 
-    if (!file) {
+    if (!file && !recordedBlob) {
       toast({
         title: "No Audio File",
-        description: "Please select an audio file to transcribe.",
+        description: "Please select an audio file or record one to transcribe.",
         variant: "destructive",
       });
       return;
@@ -55,8 +85,15 @@ export default function SpeechToTextPanel() {
     setIsTranscribing(true);
     
     try {
+      // Use the uploaded file or recorded blob
+      const audioFile = file || (recordedBlob ? new File([recordedBlob], `recording-${Date.now()}.webm`, { type: recordedBlob.type }) : null);
+      
+      if (!audioFile) {
+        throw new Error("No audio file available");
+      }
+
       const result = await transcribeAudio({
-        file,
+        file: audioFile,
         language: language === "auto" ? undefined : language,
         response_format: responseFormat as any,
         speaker_labels: speakerLabels,
@@ -139,27 +176,71 @@ export default function SpeechToTextPanel() {
             <div>
               <Label className="text-sm font-medium mb-2 block">Recording Controls</Label>
               <div className="flex items-center space-x-3">
-                <Button
-                  variant={isRecording ? "destructive" : "default"}
-                  onClick={isRecording ? stopRecording : startRecording}
-                  className="flex items-center space-x-2"
-                >
-                  {isRecording ? (
-                    <>
-                      <Pause className="h-4 w-4" />
-                      <span>Pause</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-4 w-4" />
-                      <span>Record</span>
-                    </>
-                  )}
-                </Button>
+                {!isRecording ? (
+                  <Button
+                    onClick={startRecording}
+                    className="flex items-center space-x-2"
+                  >
+                    <Play className="h-4 w-4" />
+                    <span>Start Recording</span>
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={isPaused ? resumeRecording : pauseRecording}
+                      className="flex items-center space-x-2"
+                    >
+                      {isPaused ? (
+                        <>
+                          <Play className="h-4 w-4" />
+                          <span>Resume</span>
+                        </>
+                      ) : (
+                        <>
+                          <Pause className="h-4 w-4" />
+                          <span>Pause</span>
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={stopRecording}
+                      className="flex items-center space-x-2"
+                    >
+                      <Square className="h-4 w-4" />
+                      <span>Stop</span>
+                    </Button>
+                  </>
+                )}
+                
+                {recordedBlob && !isRecording && (
+                  <Button
+                    variant="outline"
+                    onClick={clearRecording}
+                    className="flex items-center space-x-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span>Clear</span>
+                  </Button>
+                )}
+                
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   {recordingTime}
                 </div>
+                
+                {recordedBlob && !isRecording && (
+                  <div className="text-xs text-green-600 dark:text-green-400">
+                    Recording ready
+                  </div>
+                )}
               </div>
+              
+              {recordingError && (
+                <div className="text-xs text-red-600 dark:text-red-400 mt-1">
+                  {recordingError}
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">

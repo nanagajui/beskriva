@@ -35,7 +35,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `chat-message-${message.timestamp.toISOString()}.txt`;
+    a.download = `chat-message-${new Date(message.timestamp).toISOString()}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

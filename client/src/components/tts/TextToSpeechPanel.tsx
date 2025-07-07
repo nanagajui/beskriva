@@ -13,34 +13,61 @@ import { useToast } from "@/hooks/use-toast";
 import { generateSpeech } from "@/lib/api/lemonfox";
 import { Play, Download, Share, CheckCircle } from "lucide-react";
 
+// Based on Lemonfox.ai documentation - actual voice names from their TTS API
 const voiceOptions = [
-  { group: "English", voices: [
-    { value: "en-US-1", label: "Emma (US Female)" },
-    { value: "en-US-2", label: "James (US Male)" },
-    { value: "en-UK-1", label: "Sophie (UK Female)" },
-    { value: "en-UK-2", label: "Oliver (UK Male)" },
+  { group: "English (American)", voices: [
+    { value: "heart", label: "Heart" },
+    { value: "bella", label: "Bella" },
+    { value: "michael", label: "Michael" },
+    { value: "alloy", label: "Alloy" },
+    { value: "aoe", label: "Aoe" },
+    { value: "dekor", label: "Dekor" },
+    { value: "jessica", label: "Jessica" },
+    { value: "nicole", label: "Nicole" },
+    { value: "nova", label: "Nova" },
+    { value: "river", label: "River" },
+    { value: "sarah", label: "Sarah" },
+    { value: "skye", label: "Skye" },
+    { value: "echo", label: "Echo" },
+    { value: "eric", label: "Eric" },
+    { value: "fenrir", label: "Fenrir" },
+    { value: "liam", label: "Liam" },
+    { value: "onyx", label: "Onyx" },
+    { value: "puck", label: "Puck" },
+    { value: "adam", label: "Adam" },
+    { value: "santa", label: "Santa" },
   ]},
-  { group: "Spanish", voices: [
-    { value: "es-ES-1", label: "Maria (Spain Female)" },
-    { value: "es-MX-1", label: "Carlos (Mexico Male)" },
+  { group: "English (British)", voices: [
+    { value: "alice", label: "Alice" },
+    { value: "emma", label: "Emma" },
+    { value: "isabella", label: "Isabella" },
+    { value: "lily", label: "Lily" },
+    { value: "daniel", label: "Daniel" },
+    { value: "fable", label: "Fable" },
+    { value: "george", label: "George" },
+    { value: "lewis", label: "Lewis" },
   ]},
-  { group: "French", voices: [
-    { value: "fr-FR-1", label: "Amelie (France Female)" },
-    { value: "fr-FR-2", label: "Henri (France Male)" },
-  ]},
-  { group: "German", voices: [
-    { value: "de-DE-1", label: "Greta (Germany Female)" },
-    { value: "de-DE-2", label: "Hans (Germany Male)" },
-  ]},
+];
+
+const languageOptions = [
+  { value: "en-us", label: "English (US)" },
+  { value: "en-gb", label: "English (UK)" },
+  { value: "es", label: "Spanish" },
+  { value: "fr", label: "French" },
+  { value: "hi", label: "Hindi" },
+  { value: "it", label: "Italian" },
+  { value: "pt-br", label: "Portuguese (Brazil)" },
+  { value: "zh", label: "Chinese" },
+  { value: "ja", label: "Japanese" },
 ];
 
 export default function TextToSpeechPanel() {
   const [text, setText] = useState("Hello, welcome to Lemonfox AI text-to-speech service. This is a demonstration of our high-quality voice synthesis capabilities.");
-  const [voice, setVoice] = useState("en-US-1");
+  const [voice, setVoice] = useState("sarah");
+  const [language, setLanguage] = useState("en-us");
   const [speed, setSpeed] = useState([1.0]);
   const [format, setFormat] = useState("mp3");
   const [wordTimestamps, setWordTimestamps] = useState(false);
-  const [streamAudio, setStreamAudio] = useState(true);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioHistory, setAudioHistory] = useState<Array<{
@@ -79,8 +106,10 @@ export default function TextToSpeechPanel() {
       const audioBlob = await generateSpeech({
         input: text,
         voice,
+        language,
         speed: speed[0],
         response_format: format as any,
+        word_timestamps: wordTimestamps,
       });
       
       const url = URL.createObjectURL(audioBlob);
@@ -166,6 +195,22 @@ export default function TextToSpeechPanel() {
                         </SelectItem>
                       ))}
                     </div>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Language</Label>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {languageOptions.map((lang) => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
