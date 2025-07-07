@@ -1,0 +1,170 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:5000",
+    "distDir": "../dist/public",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "Lemonfox.ai",
+    "version": "1.0.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "path": {
+        "all": true
+      },
+      "fs": {
+        "all": true,
+        "readFile": true,
+        "writeFile": true,
+        "readDir": true,
+        "copyFile": true,
+        "createDir": true,
+        "removeDir": true,
+        "removeFile": true,
+        "renameFile": true,
+        "exists": true,
+        "scope": ["$APPDATA/*", "$DOCUMENT/*", "$DOWNLOAD/*", "$DESKTOP/*"]
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true,
+        "print": true
+      },
+      "app": {
+        "all": false,
+        "show": true,
+        "hide": true
+      },
+      "os": {
+        "all": true
+      },
+      "dialog": {
+        "all": true,
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
+      },
+      "clipboard": {
+        "all": true,
+        "readText": true,
+        "writeText": true
+      },
+      "globalShortcut": {
+        "all": true
+      },
+      "http": {
+        "all": true,
+        "request": true
+      },
+      "notification": {
+        "all": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "ai.lemonfox.app",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "resources": [],
+      "externalBin": [],
+      "copyright": "",
+      "category": "DeveloperTool",
+      "shortDescription": "AI APIs Dashboard for Lemonfox.ai",
+      "longDescription": "A comprehensive dashboard for accessing Lemonfox.ai APIs including Speech-to-Text, Text-to-Speech, Chat, and Image Generation capabilities.",
+      "deb": {
+        "depends": [],
+        "useBootstrapper": false
+      },
+      "macOS": {
+        "frameworks": [],
+        "minimumSystemVersion": "10.13",
+        "exceptionDomain": "",
+        "signingIdentity": null,
+        "providerShortName": null,
+        "entitlements": null
+      },
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": "",
+        "tsp": false,
+        "wix": {
+          "language": "en-US",
+          "template": "main.wxs",
+          "fragmentPaths": [],
+          "componentGroupRefs": [],
+          "componentRefs": [],
+          "featureGroupRefs": [],
+          "featureRefs": [],
+          "mergeRefs": []
+        },
+        "nsis": {
+          "template": null,
+          "languages": ["English"],
+          "customLanguageFiles": {},
+          "displayLanguageSelector": false
+        }
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "Lemonfox.ai",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "center": true,
+        "x": null,
+        "y": null,
+        "alwaysOnTop": false,
+        "decorations": true,
+        "transparent": false,
+        "skipTaskbar": false,
+        "visible": true,
+        "focus": true,
+        "maximized": false,
+        "url": "index.html"
+      }
+    ],
+    "systemTray": {
+      "iconPath": "icons/icon.ico",
+      "iconAsTemplate": false,
+      "menuOnLeftClick": false,
+      "tooltip": "Lemonfox.ai"
+    },
+    "updater": {
+      "active": false,
+      "endpoints": [],
+      "dialog": true,
+      "pubkey": ""
+    }
+  }
+}
