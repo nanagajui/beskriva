@@ -178,4 +178,68 @@ export class ContentAlignedImageGenerator {
     
     return enhancedPrompt;
   }
+  
+  static generateCoverPrompt(
+    contentText: string,
+    podcastTitle: string,
+    style: PodcastCoverStyle,
+    customElements?: string[]
+  ): string {
+    const analysis = this.analyzeContent(contentText);
+    
+    let enhancedPrompt = style.promptTemplate
+      .replace('{theme}', analysis.theme)
+      .replace('{mood}', analysis.mood);
+    
+    // Add podcast title context
+    enhancedPrompt += `, podcast title: "${podcastTitle}"`;
+    
+    // Add keywords from content
+    if (analysis.keywords.length > 0) {
+      enhancedPrompt += `, incorporating ${analysis.keywords.slice(0, 3).join(', ')}`;
+    }
+    
+    // Add custom elements if provided
+    if (customElements && customElements.length > 0) {
+      enhancedPrompt += `, including ${customElements.join(', ')}`;
+    }
+    
+    // Add quality and format specifications
+    enhancedPrompt += ', high quality, professional podcast cover design, square format, suitable for streaming platforms';
+    
+    return enhancedPrompt;
+  }
+  
+  static generateContentImagePrompt(
+    contentText: string,
+    imageType: string = 'illustration'
+  ): string {
+    const analysis = this.analyzeContent(contentText);
+    
+    let prompt = `${imageType} representing ${analysis.theme} theme with ${analysis.mood} mood`;
+    
+    // Add specific content context
+    if (analysis.keywords.length > 0) {
+      prompt += `, featuring ${analysis.keywords.slice(0, 3).join(', ')}`;
+    }
+    
+    // Add style based on genre
+    switch (analysis.genre) {
+      case 'educational':
+        prompt += ', educational style, clear and informative visual design';
+        break;
+      case 'storytelling':
+        prompt += ', narrative style, engaging visual storytelling';
+        break;
+      case 'interview':
+        prompt += ', conversational style, professional yet approachable';
+        break;
+      default:
+        prompt += ', modern and engaging visual style';
+    }
+    
+    prompt += ', high quality, detailed artwork, suitable for content illustration';
+    
+    return prompt;
+  }
 }
