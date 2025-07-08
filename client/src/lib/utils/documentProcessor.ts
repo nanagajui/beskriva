@@ -1,9 +1,16 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import type { DocumentFile } from '@/lib/stores/useDocumentStore';
 
-// Configure PDF.js worker to prevent runtime errors
-// Use the most stable approach for Replit environment
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+// Configure PDF.js worker for Replit environment
+// Use empty data URL to disable worker while satisfying type requirements
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'data:application/javascript;charset=utf-8,';
+
+// Also set disable worker flag in document processing
+const PDF_OPTIONS = {
+  disableWorker: true,
+  isEvalSupported: false,
+  useSystemFonts: true
+};
 
 export interface ExtractionProgress {
   progress: number;
@@ -22,23 +29,11 @@ export class DocumentProcessor {
     try {
       const arrayBuffer = await file.arrayBuffer();
       
-      // Handle potential worker loading issues gracefully
-      let pdf;
-      try {
-        pdf = await pdfjsLib.getDocument({ 
-          data: arrayBuffer,
-          // Disable worker if it fails to load
-          disableWorker: false,
-          isEvalSupported: false
-        }).promise;
-      } catch (workerError) {
-        console.warn('PDF worker failed, retrying without worker:', workerError);
-        // Fallback without worker
-        pdf = await pdfjsLib.getDocument({ 
-          data: arrayBuffer,
-          disableWorker: true 
-        }).promise;
-      }
+      // Use main thread processing to avoid worker issues
+      const pdf = await pdfjsLib.getDocument({ 
+        data: arrayBuffer,
+        ...PDF_OPTIONS
+      }).promise;
       
       const totalPages = pdf.numPages;
       let fullText = '';
@@ -102,7 +97,19 @@ export class DocumentProcessor {
 
     } catch (error) {
       console.error('PDF processing error:', error);
-      throw new Error(`Failed to process PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      
+      // Provide helpful error message
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid PDF')) {
+          throw new Error('Invalid PDF file. Please check the file is not corrupted.');
+        } else if (error.message.includes('password')) {
+          throw new Error('Password-protected PDFs are not supported.');
+        } else {
+          throw new Error(`PDF processing failed: ${error.message}`);
+        }
+      } else {
+        throw new Error('PDF processing failed. Please try a different file.');
+      }
     }
   }
 
