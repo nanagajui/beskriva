@@ -16,6 +16,10 @@ const tabInfo = {
     title: "Chat Hub",
     subtitle: "Orchestrate all AI APIs through conversation",
   },
+  workflow: {
+    title: "Workflow",
+    subtitle: "Manage document processing and AI workflows",
+  },
   stt: {
     title: "Speech-to-Text",
     subtitle: "Convert audio to text with high accuracy",
@@ -63,8 +67,8 @@ export default function Dashboard() {
       
       <main className="flex-1 lg:ml-64 pb-20 lg:pb-0">
         <Header 
-          title={tabInfo[activeTab]?.title || "Chat Hub"}
-          subtitle={tabInfo[activeTab]?.subtitle || "Orchestrate all AI APIs through conversation"}
+          title={tabInfo[activeTab as keyof typeof tabInfo]?.title || "Chat Hub"}
+          subtitle={tabInfo[activeTab as keyof typeof tabInfo]?.subtitle || "Orchestrate all AI APIs through conversation"}
         />
         
         <div className="p-4 lg:p-6 space-y-6">
