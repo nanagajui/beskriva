@@ -107,19 +107,54 @@ Building a Progressive Web App frontend for all Lemonfox.ai APIs with chat orche
 All major features implemented and functional. The application is ready for testing and deployment.
 
 ## 🎯 Next Steps
-1. **Testing Phase**
+
+### **Phase 1: Document Processing Pipeline** (High Priority)
+1. **PDF Processing**
+   - [ ] PDF.js integration for client-side text extraction
+   - [ ] Document attachment in chat interface
+   - [ ] Text chunking for large documents
+   - [ ] Document metadata extraction (title, authors, abstract)
+
+2. **Content Workflow Engine**
+   - [ ] Multi-step workflow orchestration
+   - [ ] Workflow templates (Research → Podcast, Document → Summary)
+   - [ ] Step progress tracking and resume capability
+   - [ ] Cross-panel result passing (summary → TTS, script → image prompt)
+
+3. **Enhanced Chat Features**
+   - [ ] File attachment support in chat input
+   - [ ] Document preview and text extraction display
+   - [ ] Workflow step visualization
+   - [ ] "Use as prompt" buttons for seamless transitions
+
+### **Phase 2: Advanced Audio Production**
+4. **Multi-Speaker TTS**
+   - [ ] Script parsing for speaker identification
+   - [ ] Voice assignment for different speakers
+   - [ ] Audio mixing and timing controls
+   - [ ] Podcast-style audio production tools
+
+5. **Content-Aligned Image Generation**
+   - [ ] Automatic prompt generation from content
+   - [ ] Style templates for podcast covers
+   - [ ] Text overlay capabilities for titles/branding
+
+### **Phase 3: Original Priorities**
+6. **Testing Phase**
    - [ ] End-to-end testing with actual Lemonfox API
+   - [ ] Document processing workflow testing
    - [ ] Cross-browser compatibility testing
    - [ ] Mobile device testing
    - [ ] PWA installation testing
 
-2. **Optimization**
+7. **Optimization**
    - [ ] Performance optimization
-   - [ ] Bundle size optimization
+   - [ ] Bundle size optimization  
+   - [ ] Large file handling optimization
    - [ ] Caching strategy refinement
    - [ ] Error handling improvements
 
-3. **Deployment**
+8. **Deployment**
    - [ ] Production build configuration
    - [ ] Static hosting setup
    - [ ] Android APK building

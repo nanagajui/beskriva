@@ -2,7 +2,9 @@
 
 ## Overview
 
-This is a Progressive Web App (PWA) that provides a unified dashboard for all Lemonfox.ai API services. The application offers a chat-centric interface for orchestrating Speech-to-Text (Whisper), Text-to-Speech, Image Generation (Stable Diffusion XL), and Chat (Llama) capabilities. It's designed to work offline-first with no backend dependency, storing all data locally in the browser.
+This is a Progressive Web App (PWA) that provides a unified dashboard for all Lemonfox.ai API services. The application offers a chat-centric interface for orchestrating Speech-to-Text (Whisper), Text-to-Speech, Image Generation (Stable Diffusion XL), and Chat (Llama) capabilities with advanced document processing workflows. It's designed to work offline-first with no backend dependency, storing all data locally in the browser.
+
+**Key Enhancement:** Content Processing Pipeline - Upload research PDFs, generate AI summaries, create podcast scripts for multiple speakers, produce TTS audio, and generate aligned cover images - all through conversational chat orchestration.
 
 ## System Architecture
 
@@ -28,9 +30,12 @@ This is a Progressive Web App (PWA) that provides a unified dashboard for all Le
 
 ### 1. Chat Interface (`/chat`)
 - Central hub for orchestrating all AI services
-- Command-based interaction (`/stt`, `/tts`, `/image` commands)
+- **Document Upload & Processing** - PDF attachment with text extraction
+- **Multi-step Content Workflows** - Research paper → Summary → Podcast script → TTS audio → Cover image
+- Command-based interaction (`/stt`, `/tts`, `/image`, `/pdf` commands)
+- **Workflow Templates** - Pre-built prompts for podcast creation, content summarization
 - Real-time message display with streaming support preparation
-- Message actions (copy, download, regenerate)
+- Message actions (copy, download, regenerate, use-as-prompt)
 - Model selection and configuration
 
 ### 2. Speech-to-Text Panel (`/stt`)
@@ -71,17 +76,26 @@ This is a Progressive Web App (PWA) that provides a unified dashboard for all Le
 3. **Request/Response handling** with proper error management
 4. **Streaming support** for real-time responses (chat)
 
+### Content Processing Pipeline
+1. **Document Upload** - PDF files processed with PDF.js for text extraction
+2. **Workflow Orchestration** - Multi-step AI processes with state management
+3. **Cross-Service Integration** - Results from one API feed into another
+4. **Template System** - Pre-built workflows for common use cases
+5. **Progress Tracking** - Step-by-step workflow visualization
+
 ### State Management
 1. **Global state** managed through Zustand stores
 2. **Local persistence** using localStorage and IndexedDB
 3. **Settings synchronization** across all panels
 4. **History management** for generated content
+5. **Workflow state** - Track multi-step process progress and intermediate results
 
 ### File Operations
 1. **File System Access API** for native file operations (when supported)
-2. **Blob downloads** as fallback for file saving
-3. **Media URL generation** for audio/image preview
-4. **Local caching** of generated content
+2. **PDF.js integration** for client-side document processing
+3. **Blob downloads** as fallback for file saving
+4. **Media URL generation** for audio/image preview
+5. **Local caching** of generated content and extracted documents
 
 ## External Dependencies
 
