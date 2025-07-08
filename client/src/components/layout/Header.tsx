@@ -23,9 +23,9 @@ export default function Header({ title, subtitle }: HeaderProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center lg:hidden">
           <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center mr-3">
-            <span className="text-white text-lg font-bold">L</span>
+            <span className="text-white text-lg font-bold">B</span>
           </div>
-          <span className="text-lg font-bold text-gray-900 dark:text-white">Lemonfox.ai</span>
+          <span className="text-lg font-bold text-gray-900 dark:text-white">Beskriva</span>
         </div>
         
         <div className="hidden lg:block">

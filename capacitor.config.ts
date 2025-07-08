@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'ai.lemonfox.app',
-  appName: 'Lemonfox.ai',
+  appId: 'studio.beskriva.app',
+  appName: 'Beskriva',
   webDir: 'dist/public',
   server: {
     androidScheme: 'https'
@@ -73,7 +73,7 @@ const config: CapacitorConfig = {
     allowMixedContent: true,
     captureInput: true,
     webContentsDebuggingEnabled: false,
-    appendUserAgent: 'LemonfoxApp',
+    appendUserAgent: 'BeskrivaApp',
     overrideUserAgent: undefined,
     backgroundColor: '#6366f1',
     loggingBehavior: 'none',

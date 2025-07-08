@@ -27,9 +27,9 @@ export default function Sidebar() {
       <div className="flex items-center justify-center h-16 px-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center">
-            <span className="text-white text-lg font-bold">L</span>
+            <span className="text-white text-lg font-bold">B</span>
           </div>
-          <span className="text-xl font-bold text-gray-900 dark:text-white">Lemonfox.ai</span>
+          <span className="text-xl font-bold text-gray-900 dark:text-white">Beskriva</span>
         </div>
       </div>
       

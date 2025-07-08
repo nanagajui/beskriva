@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "Lemonfox.ai",
+    "productName": "Beskriva",
     "version": "1.0.0"
   },
   "tauri": {
@@ -92,8 +92,8 @@
       "externalBin": [],
       "copyright": "",
       "category": "DeveloperTool",
-      "shortDescription": "AI APIs Dashboard for Lemonfox.ai",
-      "longDescription": "A comprehensive dashboard for accessing Lemonfox.ai APIs including Speech-to-Text, Text-to-Speech, Chat, and Image Generation capabilities.",
+      "shortDescription": "AI Content Creation Studio",
+      "longDescription": "Beskriva - Transform documents into rich content with AI workflows including PDF processing, Speech-to-Text, Text-to-Speech, Chat, and Image Generation capabilities.",
       "deb": {
         "depends": [],
         "useBootstrapper": false
