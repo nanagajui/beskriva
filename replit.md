@@ -141,6 +141,13 @@ This is a Progressive Web App (PWA) that provides a unified dashboard for all Le
 
 ## Changelog
 
+- January 08, 2025. Implemented PDF-to-Podcast Content Pipeline (Phase 1A & 1B):
+  - PDF Processing: Added PDF.js integration for client-side text extraction with progress tracking
+  - Document Management: Created comprehensive document store with metadata extraction
+  - Workflow Engine: Implemented multi-step AI process orchestration with template system
+  - Content Workflows: Added Research→Podcast, Document Analysis, and Content Expansion templates
+  - Enhanced Chat: Integrated document attachment, /pdf commands, and workflow triggers
+  - UI Navigation: Added Workflow panel with step visualization and progress tracking
 - January 07, 2025. Fixed all major functionality issues:
   - STT Recording Controls: Added proper stop/pause/resume with file storage integration
   - TTS Voice Selection: Updated with actual Lemonfox.ai voice names (50+ voices)

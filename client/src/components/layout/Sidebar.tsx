@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/lib/stores/useAppStore";
 import { useSettingsStore } from "@/lib/stores/useSettingsStore";
 import { useTheme } from "@/components/ui/theme-provider";
-import { MessageCircle, Mic, Volume2, Image, Settings, Sun, Moon } from "lucide-react";
+import { MessageCircle, Mic, Volume2, Image, Settings, Sun, Moon, Workflow } from "lucide-react";
 
 const navItems = [
   { id: "chat", label: "Chat Hub", icon: MessageCircle },
+  { id: "workflow", label: "Workflows", icon: Workflow },
   { id: "stt", label: "Speech-to-Text", icon: Mic },
   { id: "tts", label: "Text-to-Speech", icon: Volume2 },
   { id: "image", label: "Image Generation", icon: Image },

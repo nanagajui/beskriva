@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/lib/stores/useAppStore";
-import { MessageCircle, Mic, Volume2, Image, Settings } from "lucide-react";
+import { MessageCircle, Mic, Volume2, Image, Settings, Workflow } from "lucide-react";
 
 const navItems = [
   { id: "chat", label: "Chat", icon: MessageCircle },
+  { id: "workflow", label: "Workflow", icon: Workflow },
   { id: "stt", label: "STT", icon: Mic },
   { id: "tts", label: "TTS", icon: Volume2 },
   { id: "image", label: "Image", icon: Image },

@@ -4,6 +4,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import MobileNav from "@/components/layout/MobileNav";
 import Header from "@/components/layout/Header";
 import ChatInterface from "@/components/chat/ChatInterface";
+import WorkflowPanel from "@/components/workflow/WorkflowPanel";
 import SpeechToTextPanel from "@/components/stt/SpeechToTextPanel";
 import TextToSpeechPanel from "@/components/tts/TextToSpeechPanel";
 import ImageGenerationPanel from "@/components/image/ImageGenerationPanel";
@@ -41,6 +42,8 @@ export default function Dashboard() {
     switch (activeTab) {
       case "chat":
         return <ChatInterface />;
+      case "workflow":
+        return <WorkflowPanel />;
       case "stt":
         return <SpeechToTextPanel />;
       case "tts":
