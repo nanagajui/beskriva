@@ -11,7 +11,9 @@ import AudioPlayer from "@/components/ui/audio-player";
 import { useSettingsStore } from "@/lib/stores/useSettingsStore";
 import { useToast } from "@/hooks/use-toast";
 import { generateSpeech } from "@/lib/api/lemonfox";
-import { Play, Download, Share, CheckCircle } from "lucide-react";
+import PodcastGenerator from "@/components/audio/PodcastGenerator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Play, Download, Share, CheckCircle, Users } from "lucide-react";
 
 // Based on Lemonfox.ai documentation - actual voice names from their TTS API
 const voiceOptions = [
@@ -152,8 +154,18 @@ export default function TextToSpeechPanel() {
   const estimatedCost = (text.length / 1000000 * 1).toFixed(4);
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="max-w-4xl mx-auto space-y-6">
+      <Tabs defaultValue="single" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="single">Single Speaker</TabsTrigger>
+          <TabsTrigger value="podcast" className="flex items-center space-x-2">
+            <Users className="h-4 w-4" />
+            <span>Podcast Generator</span>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="single" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Text-to-Speech Controls</CardTitle>
@@ -380,7 +392,13 @@ export default function TextToSpeechPanel() {
             )}
           </CardContent>
         </Card>
-      </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="podcast" className="space-y-6">
+          <PodcastGenerator />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

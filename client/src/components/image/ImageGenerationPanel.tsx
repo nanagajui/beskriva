@@ -5,10 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSettingsStore } from "@/lib/stores/useSettingsStore";
 import { useToast } from "@/hooks/use-toast";
 import { generateImage } from "@/lib/api/lemonfox";
-import { Wand2, Download, Expand, Share, Grid, List, Plus, Info } from "lucide-react";
+import { ContentAlignedImageGenerator, podcastCoverStyles, type PodcastCoverStyle } from "@/lib/utils/contentAlignedImageGen";
+import { Wand2, Download, Expand, Share, Grid, List, Plus, Info, Palette, FileText } from "lucide-react";
 
 interface GeneratedImage {
   id: string;
@@ -27,9 +29,75 @@ export default function ImageGenerationPanel() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  
+  // Content-aligned generation state
+  const [contentText, setContentText] = useState("");
+  const [podcastTitle, setPodcastTitle] = useState("");
+  const [selectedStyle, setSelectedStyle] = useState<PodcastCoverStyle>(podcastCoverStyles[0]);
+  const [customElements, setCustomElements] = useState("");
 
   const { apiKey } = useSettingsStore();
   const { toast } = useToast();
+
+  const handleContentAnalysis = () => {
+    if (!contentText.trim()) {
+      toast({
+        title: "No Content",
+        description: "Please enter content to analyze for image generation.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const analysis = ContentAlignedImageGenerator.analyzeContent(contentText);
+    toast({
+      title: "Content Analyzed",
+      description: `Detected theme: ${analysis.theme}, mood: ${analysis.mood}, genre: ${analysis.genre}`,
+    });
+  };
+
+  const handleGeneratePodcastCover = async () => {
+    if (!contentText.trim() || !podcastTitle.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide both content text and podcast title.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const customElementsArray = customElements.split(',').map(el => el.trim()).filter(el => el.length > 0);
+    const generatedPrompt = ContentAlignedImageGenerator.generateCoverPrompt(
+      contentText,
+      podcastTitle,
+      selectedStyle,
+      customElementsArray.length > 0 ? customElementsArray : undefined
+    );
+
+    setPrompt(generatedPrompt);
+    toast({
+      title: "Prompt Generated",
+      description: "Content-aligned prompt created! You can edit it before generating.",
+    });
+  };
+
+  const handleGenerateContentImage = async () => {
+    if (!contentText.trim()) {
+      toast({
+        title: "No Content",
+        description: "Please provide content text to generate aligned images.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const generatedPrompt = ContentAlignedImageGenerator.generateContentImagePrompt(contentText, 'illustration');
+    setPrompt(generatedPrompt);
+    toast({
+      title: "Prompt Generated",
+      description: "Content-aligned illustration prompt created!",
+    });
+  };
 
   const handleGenerate = async () => {
     if (!apiKey) {
@@ -104,8 +172,21 @@ export default function ImageGenerationPanel() {
   const estimatedCost = (parseInt(quantity) * 0.02).toFixed(2);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="grid grid-cols-1 gap-6">
+    <div className="max-w-6xl mx-auto space-y-6">
+      <Tabs defaultValue="manual" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="manual" className="flex items-center space-x-2">
+            <Wand2 className="h-4 w-4" />
+            <span>Manual Generation</span>
+          </TabsTrigger>
+          <TabsTrigger value="content-aligned" className="flex items-center space-x-2">
+            <Palette className="h-4 w-4" />
+            <span>Content-Aligned</span>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="manual" className="space-y-6">
+          <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Image Generation Controls</CardTitle>
@@ -311,7 +392,154 @@ export default function ImageGenerationPanel() {
             )}
           </CardContent>
         </Card>
-      </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="content-aligned" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Podcast Cover Generator */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Palette className="h-5 w-5" />
+                  <span>Podcast Cover Generator</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Podcast Title</Label>
+                  <Input
+                    value={podcastTitle}
+                    onChange={(e) => setPodcastTitle(e.target.value)}
+                    placeholder="Enter your podcast title..."
+                  />
+                </div>
+                
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Content Text</Label>
+                  <Textarea
+                    value={contentText}
+                    onChange={(e) => setContentText(e.target.value)}
+                    placeholder="Paste your podcast script, episode summary, or content description here..."
+                    className="min-h-[120px]"
+                  />
+                </div>
+                
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Cover Style</Label>
+                  <Select 
+                    value={selectedStyle.id} 
+                    onValueChange={(value) => {
+                      const style = podcastCoverStyles.find(s => s.id === value);
+                      if (style) setSelectedStyle(style);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {podcastCoverStyles.map((style) => (
+                        <SelectItem key={style.id} value={style.id}>
+                          {style.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {selectedStyle.description}
+                  </p>
+                </div>
+                
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Custom Elements (optional)</Label>
+                  <Input
+                    value={customElements}
+                    onChange={(e) => setCustomElements(e.target.value)}
+                    placeholder="microphone, headphones, waves..."
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Comma-separated visual elements to include
+                  </p>
+                </div>
+                
+                <div className="flex space-x-2">
+                  <Button onClick={handleContentAnalysis} variant="outline" className="flex-1">
+                    <Info className="h-4 w-4 mr-2" />
+                    Analyze Content
+                  </Button>
+                  <Button onClick={handleGeneratePodcastCover} className="flex-1">
+                    <Palette className="h-4 w-4 mr-2" />
+                    Generate Cover Prompt
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Content Illustration Generator */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FileText className="h-5 w-5" />
+                  <span>Content Illustration</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Content to Illustrate</Label>
+                  <Textarea
+                    value={contentText}
+                    onChange={(e) => setContentText(e.target.value)}
+                    placeholder="Paste the content you want to create an illustration for..."
+                    className="min-h-[160px]"
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <Button onClick={handleGenerateContentImage} className="w-full">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Generate Content Image Prompt
+                  </Button>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        const prompt = ContentAlignedImageGenerator.generateContentImagePrompt(contentText, 'photo');
+                        setPrompt(prompt);
+                        toast({ title: "Photo prompt generated!" });
+                      }}
+                      disabled={!contentText.trim()}
+                    >
+                      Photo Style
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        const prompt = ContentAlignedImageGenerator.generateContentImagePrompt(contentText, 'diagram');
+                        setPrompt(prompt);
+                        toast({ title: "Diagram prompt generated!" });
+                      }}
+                      disabled={!contentText.trim()}
+                    >
+                      Diagram Style
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <h4 className="font-medium mb-2">How it works:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• AI analyzes your content for themes and mood</li>
+                    <li>• Generates contextually relevant image prompts</li>
+                    <li>• Adapts visual style to content type</li>
+                    <li>• Creates cohesive brand visuals</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
