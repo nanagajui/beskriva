@@ -31,6 +31,9 @@ export default function DocumentUpload({ onUploadComplete, className = "" }: Doc
     addDocument, 
     updateDocumentText, 
     setProcessingStatus,
+    removeDocument,
+    clearAllDocuments,
+    uploadedFiles,
     currentDocument 
   } = useDocumentStore();
   
@@ -145,10 +148,39 @@ export default function DocumentUpload({ onUploadComplete, className = "" }: Doc
                 </p>
               </div>
             </div>
-            <Badge variant="secondary">
-              {currentDocument.extractedText ? 'Ready' : 'Processing'}
-            </Badge>
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary">
+                {currentDocument.extractedText ? 'Ready' : 'Processing'}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  removeDocument(currentDocument.id);
+                  toast({
+                    title: "Document Removed",
+                    description: "Document has been removed from your workspace."
+                  });
+                }}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
+          
+          {/* Show extracted text preview */}
+          {currentDocument.extractedText && (
+            <div className="mt-4 pt-4 border-t">
+              <p className="text-sm font-medium mb-2">Extracted Text Preview:</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 max-h-32 overflow-y-auto">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  {currentDocument.extractedText.substring(0, 300)}
+                  {currentDocument.extractedText.length > 300 && "..."}
+                </p>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
@@ -156,6 +188,77 @@ export default function DocumentUpload({ onUploadComplete, className = "" }: Doc
 
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* Show existing documents if any */}
+      {uploadedFiles.length > 0 && !currentDocument && (
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium">Previously Uploaded Documents</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  clearAllDocuments();
+                  toast({
+                    title: "All Documents Removed",
+                    description: "Cleared all documents from workspace."
+                  });
+                }}
+                className="text-red-600 hover:text-red-700"
+              >
+                Clear All
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {uploadedFiles.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                  <div className="flex items-center space-x-3">
+                    <FileText className="h-4 w-4 text-blue-600" />
+                    <div>
+                      <p className="font-medium text-sm">{doc.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {DocumentProcessor.formatFileSize(doc.size)} • 
+                        {doc.metadata?.wordCount || 0} words
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // Set as current document
+                        useDocumentStore.setState({ currentDocument: doc });
+                        toast({
+                          title: "Document Selected",
+                          description: `Now using "${doc.name}" for workflows.`
+                        });
+                      }}
+                    >
+                      Use This File
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        removeDocument(doc.id);
+                        toast({
+                          title: "Document Removed",
+                          description: `"${doc.name}" has been removed.`
+                        });
+                      }}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       {/* Upload Area */}
       <Card 
         className={`transition-all border-2 border-dashed cursor-pointer hover:border-primary/50 ${

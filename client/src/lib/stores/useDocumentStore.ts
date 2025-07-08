@@ -54,6 +54,7 @@ interface DocumentState {
   setCurrentDocument: (id: string) => void;
   updateDocumentText: (id: string, text: string, metadata?: DocumentFile['metadata']) => void;
   removeDocument: (id: string) => void;
+  clearAllDocuments: () => void;
   setProcessingStatus: (status: DocumentState['processingStatus']) => void;
   setExtractionProgress: (progress: number) => void;
   
@@ -206,6 +207,13 @@ export const useDocumentStore = create<DocumentState>()(
         uploadedFiles: state.uploadedFiles.filter(f => f.id !== id),
         currentDocument: state.currentDocument?.id === id ? undefined : state.currentDocument
       })),
+      
+      clearAllDocuments: () => set({
+        uploadedFiles: [],
+        currentDocument: undefined,
+        processingStatus: 'idle',
+        extractionProgress: 0
+      }),
 
       setProcessingStatus: (status) => set({ processingStatus: status }),
 
