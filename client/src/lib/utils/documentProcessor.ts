@@ -1,8 +1,9 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import type { DocumentFile } from '@/lib/stores/useDocumentStore';
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Configure PDF.js worker to prevent runtime errors
+// Use the most stable approach for Replit environment
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 export interface ExtractionProgress {
   progress: number;
@@ -20,7 +21,24 @@ export class DocumentProcessor {
     
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      
+      // Handle potential worker loading issues gracefully
+      let pdf;
+      try {
+        pdf = await pdfjsLib.getDocument({ 
+          data: arrayBuffer,
+          // Disable worker if it fails to load
+          disableWorker: false,
+          isEvalSupported: false
+        }).promise;
+      } catch (workerError) {
+        console.warn('PDF worker failed, retrying without worker:', workerError);
+        // Fallback without worker
+        pdf = await pdfjsLib.getDocument({ 
+          data: arrayBuffer,
+          disableWorker: true 
+        }).promise;
+      }
       
       const totalPages = pdf.numPages;
       let fullText = '';
