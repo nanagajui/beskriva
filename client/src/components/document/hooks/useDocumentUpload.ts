@@ -3,7 +3,6 @@ import { useToast } from '@/hooks/use-toast';
 import { DocumentProcessor, type ExtractionProgress } from '@/lib/utils/documentProcessor';
 import { useDocumentStore } from '@/lib/stores/useDocumentStore';
 import { validateFileType, validateFileSize } from '@/lib/utils/validation';
-import { handleAsyncError } from '@/lib/utils/errorHandler';
 import type { DocumentFile } from '@shared/types';
 
 interface UseDocumentUploadProps {

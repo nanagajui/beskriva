@@ -1,5 +1,5 @@
 import { useSettingsStore } from "@/lib/stores/useSettingsStore";
-import { validateApiKey, createError, handleAsyncError } from "@/lib/utils/errorHandler";
+import { validateApiKey } from "@/lib/utils/errorHandler";
 import { 
   TranscriptionRequest, 
   TranscriptionResponse, 

@@ -6,8 +6,6 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDocumentStore } from "@/lib/stores/useDocumentStore";
-import { useWorkflowStore } from "@/lib/stores/useWorkflowStore";
-import { useTemplateStore } from "@/lib/stores/useTemplateStore";
 import type { WorkflowStep, WorkflowTemplate } from "@shared/types";
 import { 
   Play, 
@@ -41,14 +39,7 @@ const statusColors = {
 export default function WorkflowPanel() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   
-  const { currentDocument } = useDocumentStore();
-  const { 
-    workflows,
-    currentWorkflow,
-    startWorkflow,
-    clearWorkflow
-  } = useWorkflowStore();
-  const { workflowTemplates } = useTemplateStore();
+  const { currentDocument, workflowTemplates, workflows, currentWorkflow, startWorkflow, clearWorkflow } = useDocumentStore();
 
   const handleStartWorkflow = (templateId: string) => {
     if (!currentDocument) {
