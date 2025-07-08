@@ -1,4 +1,5 @@
 import { useSettingsStore } from "@/lib/stores/useSettingsStore";
+import { validateApiKey, createError, handleAsyncError } from "@/lib/utils/errorHandler";
 import { 
   TranscriptionRequest, 
   TranscriptionResponse, 
@@ -12,6 +13,7 @@ import {
 class LemonfoxAPI {
   private getHeaders(): Record<string, string> {
     const { apiKey } = useSettingsStore.getState();
+    validateApiKey(apiKey);
     return {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',

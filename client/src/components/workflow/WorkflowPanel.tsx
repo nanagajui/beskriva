@@ -41,15 +41,14 @@ const statusColors = {
 export default function WorkflowPanel() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   
-  const {
-    workflowTemplates,
+  const { currentDocument } = useDocumentStore();
+  const { 
     workflows,
     currentWorkflow,
-    currentDocument,
     startWorkflow,
-    clearWorkflow,
-    processingStatus
-  } = useDocumentStore();
+    clearWorkflow
+  } = useWorkflowStore();
+  const { workflowTemplates } = useTemplateStore();
 
   const handleStartWorkflow = (templateId: string) => {
     if (!currentDocument) {

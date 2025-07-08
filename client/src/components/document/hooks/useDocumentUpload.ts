@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { DocumentProcessor, type ExtractionProgress } from '@/lib/utils/documentProcessor';
 import { useDocumentStore } from '@/lib/stores/useDocumentStore';
+import { validateFileType, validateFileSize } from '@/lib/utils/validation';
+import { handleAsyncError } from '@/lib/utils/errorHandler';
 import type { DocumentFile } from '@shared/types';
 
 interface UseDocumentUploadProps {
@@ -29,21 +31,9 @@ export function useDocumentUpload({ onUploadComplete }: UseDocumentUploadProps =
     setProcessingStatus('extracting');
 
     try {
-      // Validate file type
-      const validTypes = ['application/pdf', 'text/plain'];
-      const validExtensions = ['.pdf', '.txt'];
-      
-      const isValidType = validTypes.includes(file.type) || 
-        validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
-      
-      if (!isValidType) {
-        throw new Error('Please upload a PDF or text file only.');
-      }
-
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        throw new Error('File size must be less than 10MB.');
-      }
+      // Validate file type and size using centralized validation
+      validateFileType(file, ['application/pdf', 'text/plain']);
+      validateFileSize(file, 10);
 
       // Create document record
       const documentFile = DocumentProcessor.createDocumentFile(file);
