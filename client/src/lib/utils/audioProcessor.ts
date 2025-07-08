@@ -24,6 +24,10 @@ export interface PodcastScript {
 export class AudioProcessor {
   
   static parseScript(scriptText: string): PodcastScript {
+    if (!scriptText.trim()) {
+      throw new Error('Script text cannot be empty');
+    }
+    
     const lines = scriptText.split('\n').filter(line => line.trim());
     const speakers = new Map<string, Speaker>();
     const dialogue: DialogueLine[] = [];
@@ -64,6 +68,10 @@ export class AudioProcessor {
           text: text.trim()
         });
       }
+    }
+    
+    if (dialogue.length === 0) {
+      throw new Error('No dialogue found in script. Please format with "Speaker: Text" lines.');
     }
     
     return {
@@ -137,56 +145,61 @@ export class AudioProcessor {
     
     // For now, we'll create a simple concatenation
     // In a production app, you'd want proper audio mixing
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const buffers: AudioBuffer[] = [];
-    
-    // Load all audio segments
-    for (const segment of segments) {
-      try {
-        const arrayBuffer = await segment.blob.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        buffers.push(audioBuffer);
-      } catch (error) {
-        console.error('Failed to decode audio segment:', error);
-      }
-    }
-    
-    if (buffers.length === 0) {
-      throw new Error('No valid audio segments to combine');
-    }
-    
-    // Calculate total duration and create combined buffer
-    const sampleRate = buffers[0].sampleRate;
-    const pauseSamples = Math.floor(pauseDuration * sampleRate);
-    const totalSamples = buffers.reduce((sum, buffer) => sum + buffer.length, 0) + 
-                        (buffers.length - 1) * pauseSamples;
-    
-    const combinedBuffer = audioContext.createBuffer(
-      buffers[0].numberOfChannels,
-      totalSamples,
-      sampleRate
-    );
-    
-    // Copy audio data with pauses
-    let offset = 0;
-    for (let i = 0; i < buffers.length; i++) {
-      const buffer = buffers[i];
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const buffers: AudioBuffer[] = [];
       
-      for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-        const channelData = buffer.getChannelData(channel);
-        combinedBuffer.getChannelData(channel).set(channelData, offset);
+      // Load all audio segments
+      for (const segment of segments) {
+        try {
+          const arrayBuffer = await segment.blob.arrayBuffer();
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          buffers.push(audioBuffer);
+        } catch (error) {
+          console.error('Failed to decode audio segment:', error);
+        }
       }
       
-      offset += buffer.length;
-      
-      // Add pause between segments (except after last segment)
-      if (i < buffers.length - 1) {
-        offset += pauseSamples;
+      if (buffers.length === 0) {
+        throw new Error('No valid audio segments to combine');
       }
-    }
+      
+      // Calculate total duration and create combined buffer
+      const sampleRate = buffers[0].sampleRate;
+      const pauseSamples = Math.floor(pauseDuration * sampleRate);
+      const totalSamples = buffers.reduce((sum, buffer) => sum + buffer.length, 0) + 
+                          (buffers.length - 1) * pauseSamples;
+      
+      const combinedBuffer = audioContext.createBuffer(
+        buffers[0].numberOfChannels,
+        totalSamples,
+        sampleRate
+      );
+      
+      // Copy audio data with pauses
+      let offset = 0;
+      for (let i = 0; i < buffers.length; i++) {
+        const buffer = buffers[i];
+        
+        for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+          const channelData = buffer.getChannelData(channel);
+          combinedBuffer.getChannelData(channel).set(channelData, offset);
+        }
+        
+        offset += buffer.length;
+        
+        // Add pause between segments (except after last segment)
+        if (i < buffers.length - 1) {
+          offset += pauseSamples;
+        }
+      }
     
-    // Convert back to blob
-    return this.audioBufferToBlob(combinedBuffer);
+      // Convert back to blob
+      return this.audioBufferToBlob(combinedBuffer);
+    } catch (error) {
+      console.error('Error combining audio segments:', error);
+      throw new Error('Failed to combine audio segments');
+    }
   }
   
   private static async audioBufferToBlob(audioBuffer: AudioBuffer): Promise<Blob> {

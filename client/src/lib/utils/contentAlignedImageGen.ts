@@ -62,6 +62,10 @@ export const podcastCoverStyles: PodcastCoverStyle[] = [
 export class ContentAlignedImageGenerator {
   
   static analyzeContent(text: string): ContentAnalysis {
+    if (!text.trim()) {
+      throw new Error('Content cannot be empty for analysis');
+    }
+    
     const lowercaseText = text.toLowerCase();
     
     // Extract keywords (simplified - in production you'd use NLP)

@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import AudioPlayer from "@/components/ui/audio-player";
 import { useToast } from "@/hooks/use-toast";
+import { useSettingsStore } from "@/lib/stores/useSettingsStore";
 import { AudioProcessor, type PodcastScript, type Speaker } from "@/lib/utils/audioProcessor";
 import { 
   Play, 
@@ -35,6 +36,7 @@ export default function PodcastGenerator() {
   const [pauseBetweenSpeakers, setPauseBetweenSpeakers] = useState([0.5]);
   
   const { toast } = useToast();
+  const { apiKey } = useSettingsStore();
   
   const handleParseScript = () => {
     if (!script.trim()) {
@@ -64,6 +66,15 @@ export default function PodcastGenerator() {
   
   const handleGenerateAudio = async () => {
     if (!parsedScript) return;
+    
+    if (!apiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please set your Lemonfox.ai API key in Settings.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsGenerating(true);
     setGenerationProgress(0);
