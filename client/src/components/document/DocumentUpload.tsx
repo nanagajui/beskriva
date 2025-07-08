@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useDocumentStore } from "@/lib/stores/useDocumentStore";
 import { DocumentProcessor, type ExtractionProgress } from "@/lib/utils/documentProcessor";
 import { useToast } from "@/hooks/use-toast";
+import { useDocumentUpload } from "./hooks/useDocumentUpload";
 import { 
   Upload, 
   FileText, 
@@ -23,14 +24,8 @@ interface DocumentUploadProps {
 
 export default function DocumentUpload({ onUploadComplete, className = "" }: DocumentUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [extractionProgress, setExtractionProgress] = useState<ExtractionProgress | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
+  
   const { 
-    addDocument, 
-    updateDocumentText, 
-    setProcessingStatus,
     removeDocument,
     clearAllDocuments,
     uploadedFiles,
@@ -38,72 +33,22 @@ export default function DocumentUpload({ onUploadComplete, className = "" }: Doc
   } = useDocumentStore();
   
   const { toast } = useToast();
+  
+  const { 
+    isProcessing, 
+    extractionProgress, 
+    error, 
+    uploadFile, 
+    resetError 
+  } = useDocumentUpload({ onUploadComplete });
 
   const handleFileSelect = useCallback(async (files: FileList | File[]) => {
     const file = files[0];
     if (!file) return;
-
-    // Validate file type
-    const validTypes = ['application/pdf', 'text/plain'];
-    const validExtensions = ['.pdf', '.txt'];
     
-    const isValidType = validTypes.includes(file.type) || 
-      validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
-    
-    if (!isValidType) {
-      setError('Please upload a PDF or text file only.');
-      return;
-    }
-
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setError('File size must be less than 10MB.');
-      return;
-    }
-
-    setError(null);
-    setIsProcessing(true);
-    setProcessingStatus('extracting');
-
-    try {
-      // Create document record
-      const documentFile = DocumentProcessor.createDocumentFile(file);
-      addDocument(documentFile);
-
-      // Extract text with progress tracking
-      const { text, metadata } = await DocumentProcessor.extractTextFromFile(
-        file,
-        (progress) => {
-          setExtractionProgress(progress);
-        }
-      );
-
-      // Update document with extracted text
-      updateDocumentText(documentFile.id, text, metadata);
-      setProcessingStatus('complete');
-
-      toast({
-        title: "Document processed successfully",
-        description: `Extracted ${metadata.wordCount} words from ${metadata.pages} pages.`,
-      });
-
-      onUploadComplete?.(documentFile.id);
-
-    } catch (err) {
-      console.error('Document processing error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to process document');
-      setProcessingStatus('error');
-      
-      toast({
-        title: "Processing failed",
-        description: "Could not extract text from the document.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-      setExtractionProgress(null);
-    }
-  }, [addDocument, updateDocumentText, setProcessingStatus, toast, onUploadComplete]);
+    resetError();
+    await uploadFile(file);
+  }, [uploadFile, resetError]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();

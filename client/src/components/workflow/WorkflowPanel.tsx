@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useDocumentStore, type WorkflowTemplate } from "@/lib/stores/useDocumentStore";
+import { useDocumentStore } from "@/lib/stores/useDocumentStore";
+import { useWorkflowStore } from "@/lib/stores/useWorkflowStore";
+import { useTemplateStore } from "@/lib/stores/useTemplateStore";
+import type { WorkflowStep, WorkflowTemplate } from "@shared/types";
 import { 
   Play, 
   Pause, 
