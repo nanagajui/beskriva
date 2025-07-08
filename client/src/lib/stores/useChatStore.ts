@@ -1,13 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export interface ChatMessage {
-  role: "user" | "assistant" | "system";
-  content: string;
-  timestamp: Date;
-  image?: string;
-  id?: string;
-}
+import type { ChatMessage } from "@shared/types";
+
+export type { ChatMessage };
 
 interface ChatState {
   messages: ChatMessage[];

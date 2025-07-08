@@ -7,7 +7,7 @@ import {
   ChatCompletionResponse, 
   ImageGenerationRequest, 
   ImageGenerationResponse 
-} from "./types";
+} from "@shared/types";
 
 class LemonfoxAPI {
   private getHeaders(): Record<string, string> {

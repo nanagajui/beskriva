@@ -1,47 +1,20 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export interface DocumentFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  uploadedAt: Date;
-  extractedText?: string;
-  metadata?: {
-    title?: string;
-    author?: string;
-    pages?: number;
-    wordCount?: number;
-  };
-}
+import type { 
+  DocumentFile, 
+  WorkflowStep, 
+  WorkflowTemplate,
+  ProcessingStatus 
+} from "@shared/types";
 
-export interface WorkflowStep {
-  id: string;
-  type: 'chat' | 'tts' | 'image' | 'user-input';
-  title: string;
-  prompt?: string;
-  parameters?: Record<string, any>;
-  dependencies?: string[];
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
-  result?: any;
-  createdAt: Date;
-  completedAt?: Date;
-}
-
-export interface WorkflowTemplate {
-  id: string;
-  name: string;
-  description: string;
-  steps: Omit<WorkflowStep, 'id' | 'status' | 'createdAt' | 'completedAt'>[];
-  category: 'document' | 'content' | 'analysis';
-}
+export type { DocumentFile, WorkflowStep, WorkflowTemplate };
 
 interface DocumentState {
   // Document management
   uploadedFiles: DocumentFile[];
   currentDocument?: DocumentFile;
-  processingStatus: 'idle' | 'extracting' | 'processing' | 'complete' | 'error';
+  processingStatus: ProcessingStatus;
   extractionProgress: number;
   
   // Workflow management
@@ -55,7 +28,7 @@ interface DocumentState {
   updateDocumentText: (id: string, text: string, metadata?: DocumentFile['metadata']) => void;
   removeDocument: (id: string) => void;
   clearAllDocuments: () => void;
-  setProcessingStatus: (status: DocumentState['processingStatus']) => void;
+  setProcessingStatus: (status: ProcessingStatus) => void;
   setExtractionProgress: (progress: number) => void;
   
   // Workflow actions

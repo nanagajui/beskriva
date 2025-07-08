@@ -1,5 +1,5 @@
 import * as pdfjsLib from 'pdfjs-dist';
-import type { DocumentFile } from '@/lib/stores/useDocumentStore';
+import type { DocumentFile, ExtractionProgress } from '@shared/types';
 
 // Configure PDF.js worker for Replit environment
 // Use empty data URL to disable worker while satisfying type requirements
@@ -12,12 +12,7 @@ const PDF_OPTIONS = {
   useSystemFonts: true
 };
 
-export interface ExtractionProgress {
-  progress: number;
-  currentPage: number;
-  totalPages: number;
-  status: string;
-}
+export type { ExtractionProgress };
 
 export class DocumentProcessor {
   

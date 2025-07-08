@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type TabType = "chat" | "stt" | "tts" | "image" | "settings";
+import type { TabType } from "@shared/types";
+
+export type { TabType };
 
 interface AppState {
   activeTab: TabType;
