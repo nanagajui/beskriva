@@ -31,211 +31,151 @@ export const podcastCoverStyles: PodcastCoverStyle[] = [
   },
   {
     id: 'tech',
-    name: 'Tech/Science',
-    description: 'Futuristic design with tech elements',
-    promptTemplate: 'Technology podcast cover design, futuristic elements, digital art, sci-fi aesthetic, {theme} theme, {mood} atmosphere, geometric patterns, neon accents',
+    name: 'Tech/Digital',
+    description: 'Modern tech aesthetic with digital elements',
+    promptTemplate: 'Tech podcast cover design, digital aesthetic, modern technology theme, sleek interface, {theme} focus, {mood} vibe, futuristic elements, clean tech style',
     aspectRatio: '1:1'
   },
   {
-    id: 'conversational',
-    name: 'Conversational',
-    description: 'Warm, inviting design for discussion podcasts',
-    promptTemplate: 'Conversational podcast cover, warm inviting design, discussion theme, friendly atmosphere, {theme} topic, {mood} feeling, speech bubbles, microphone elements',
+    id: 'storytelling',
+    name: 'Storytelling/Narrative',
+    description: 'Narrative-driven design with story elements',
+    promptTemplate: 'Storytelling podcast cover, narrative design, story elements, {theme} theme, {mood} atmosphere, book-like aesthetic, literary style, engaging visual narrative',
     aspectRatio: '1:1'
   },
   {
     id: 'educational',
     name: 'Educational',
-    description: 'Academic style with educational elements',
-    promptTemplate: 'Educational podcast cover design, academic style, learning theme, knowledge symbols, {theme} subject, {mood} atmosphere, book elements, scholarly design',
+    description: 'Academic and learning-focused design',
+    promptTemplate: 'Educational podcast cover design, learning theme, academic style, knowledge focus, {theme} subject, {mood} tone, educational graphics, professional learning aesthetic',
     aspectRatio: '1:1'
   },
   {
     id: 'entertainment',
     name: 'Entertainment',
     description: 'Fun, engaging design for entertainment content',
-    promptTemplate: 'Entertainment podcast cover, fun engaging design, playful elements, dynamic composition, {theme} theme, {mood} energy, vibrant colors, entertainment industry style',
+    promptTemplate: 'Entertainment podcast cover, fun engaging design, entertainment theme, {theme} focus, {mood} energy, vibrant colors, dynamic layout, engaging visual style',
     aspectRatio: '1:1'
   }
 ];
 
 export class ContentAlignedImageGenerator {
-  
   static analyzeContent(text: string): ContentAnalysis {
-    if (!text.trim()) {
-      throw new Error('Content cannot be empty for analysis');
+    const content = text.toLowerCase();
+    
+    // Theme detection
+    let theme = 'general';
+    if (content.includes('business') || content.includes('marketing') || content.includes('entrepreneurship')) {
+      theme = 'business';
+    } else if (content.includes('technology') || content.includes('tech') || content.includes('ai') || content.includes('software')) {
+      theme = 'technology';
+    } else if (content.includes('health') || content.includes('medical') || content.includes('wellness')) {
+      theme = 'health';
+    } else if (content.includes('education') || content.includes('learning') || content.includes('teaching')) {
+      theme = 'education';
+    } else if (content.includes('science') || content.includes('research') || content.includes('study')) {
+      theme = 'science';
     }
     
-    const lowercaseText = text.toLowerCase();
+    // Mood detection
+    let mood = 'neutral';
+    if (content.includes('exciting') || content.includes('amazing') || content.includes('incredible')) {
+      mood = 'energetic';
+    } else if (content.includes('calm') || content.includes('peaceful') || content.includes('serene')) {
+      mood = 'calm';
+    } else if (content.includes('serious') || content.includes('important') || content.includes('critical')) {
+      mood = 'serious';
+    } else if (content.includes('fun') || content.includes('entertaining') || content.includes('humorous')) {
+      mood = 'playful';
+    }
     
-    // Extract keywords (simplified - in production you'd use NLP)
+    // Genre detection
+    let genre = 'discussion';
+    if (content.includes('interview') || content.includes('conversation')) {
+      genre = 'interview';
+    } else if (content.includes('story') || content.includes('narrative')) {
+      genre = 'storytelling';
+    } else if (content.includes('news') || content.includes('current events')) {
+      genre = 'news';
+    } else if (content.includes('tutorial') || content.includes('how to')) {
+      genre = 'educational';
+    }
+    
+    // Extract keywords
     const keywords = this.extractKeywords(text);
     
-    // Determine theme based on content
-    const theme = this.determineTheme(lowercaseText, keywords);
-    
-    // Determine mood
-    const mood = this.determineMood(lowercaseText);
-    
-    // Determine genre
-    const genre = this.determineGenre(lowercaseText, keywords);
-    
-    // Suggest visual style
-    const visualStyle = this.determineVisualStyle(theme, genre, mood);
+    // Visual style recommendation
+    const visualStyle = this.recommendVisualStyle(theme, mood, genre);
     
     return {
       theme,
       mood,
-      keywords: keywords.slice(0, 10), // Top 10 keywords
+      keywords,
       genre,
       visualStyle
     };
   }
   
-  static generateCoverPrompt(
-    content: string, 
-    title: string,
-    style: PodcastCoverStyle,
-    customElements?: string[]
-  ): string {
-    const analysis = this.analyzeContent(content);
-    
-    let prompt = style.promptTemplate
-      .replace('{theme}', analysis.theme)
-      .replace('{mood}', analysis.mood);
-    
-    // Add title text overlay instruction
-    prompt += `, podcast title overlay: "${title}"`;
-    
-    // Add content-specific elements
-    if (analysis.keywords.length > 0) {
-      prompt += `, visual elements related to: ${analysis.keywords.slice(0, 3).join(', ')}`;
-    }
-    
-    // Add custom elements if provided
-    if (customElements && customElements.length > 0) {
-      prompt += `, additional elements: ${customElements.join(', ')}`;
-    }
-    
-    // Add quality and format specifications
-    prompt += ', high resolution, 1024x1024, professional quality, sharp details, vibrant colors';
-    
-    return prompt;
-  }
-  
-  static generateContentImagePrompt(
-    content: string,
-    imageType: 'illustration' | 'photo' | 'diagram' | 'abstract' = 'illustration'
-  ): string {
-    const analysis = this.analyzeContent(content);
-    
-    const typeTemplates = {
-      illustration: 'detailed illustration depicting',
-      photo: 'realistic photograph showing',
-      diagram: 'clear diagram explaining',
-      abstract: 'abstract artistic representation of'
-    };
-    
-    let prompt = `${typeTemplates[imageType]} ${analysis.theme}`;
-    
-    if (analysis.keywords.length > 0) {
-      prompt += `, featuring ${analysis.keywords.slice(0, 3).join(', ')}`;
-    }
-    
-    prompt += `, ${analysis.mood} atmosphere, ${analysis.visualStyle} style`;
-    prompt += ', high quality, detailed, professional, 1024x1024';
-    
-    return prompt;
-  }
-  
-  private static extractKeywords(text: string): string[] {
-    // Simple keyword extraction (in production, use proper NLP)
+  static extractKeywords(text: string): string[] {
     const words = text.toLowerCase()
       .replace(/[^\w\s]/g, ' ')
       .split(/\s+/)
       .filter(word => word.length > 3);
     
-    // Count word frequency
+    const commonWords = new Set(['that', 'this', 'with', 'have', 'will', 'been', 'from', 'they', 'know', 'want', 'been', 'good', 'much', 'some', 'time', 'very', 'when', 'come', 'here', 'just', 'like', 'long', 'make', 'many', 'over', 'such', 'take', 'than', 'them', 'well', 'were']);
+    
+    const filteredWords = words.filter(word => !commonWords.has(word));
+    
+    // Count frequency
     const wordCount = new Map<string, number>();
-    words.forEach(word => {
+    filteredWords.forEach(word => {
       wordCount.set(word, (wordCount.get(word) || 0) + 1);
     });
     
-    // Remove common stop words
-    const stopWords = new Set([
-      'that', 'this', 'with', 'from', 'they', 'been', 'have', 'were', 'said', 
-      'each', 'which', 'their', 'time', 'will', 'about', 'would', 'there', 
-      'could', 'other', 'more', 'very', 'what', 'know', 'just', 'first',
-      'into', 'over', 'think', 'also', 'your', 'work', 'life', 'only',
-      'new', 'years', 'way', 'may', 'days', 'use', 'these', 'come', 'its',
-      'during', 'learn', 'around', 'usually'
-    ]);
-    
+    // Return top keywords
     return Array.from(wordCount.entries())
-      .filter(([word]) => !stopWords.has(word))
-      .sort(([,a], [,b]) => b - a)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
       .map(([word]) => word);
   }
   
-  private static determineTheme(text: string, keywords: string[]): string {
-    const themeKeywords = {
-      technology: ['tech', 'digital', 'software', 'computer', 'internet', 'data', 'algorithm', 'artificial', 'intelligence'],
-      business: ['business', 'company', 'market', 'financial', 'economic', 'startup', 'entrepreneur', 'investment'],
-      health: ['health', 'medical', 'wellness', 'fitness', 'mental', 'therapy', 'doctor', 'treatment'],
-      education: ['education', 'learning', 'teaching', 'school', 'university', 'knowledge', 'study', 'research'],
-      science: ['science', 'research', 'discovery', 'experiment', 'theory', 'physics', 'chemistry', 'biology'],
-      entertainment: ['entertainment', 'movie', 'music', 'game', 'show', 'celebrity', 'culture', 'art'],
-      politics: ['politics', 'government', 'policy', 'election', 'democracy', 'society', 'public'],
-      lifestyle: ['lifestyle', 'travel', 'food', 'fashion', 'personal', 'hobby', 'relationship']
-    };
+  static recommendVisualStyle(theme: string, mood: string, genre: string): string {
+    if (theme === 'business' && mood === 'serious') {
+      return 'professional';
+    } else if (theme === 'technology') {
+      return 'tech';
+    } else if (genre === 'storytelling') {
+      return 'storytelling';
+    } else if (genre === 'educational') {
+      return 'educational';
+    } else if (mood === 'playful' || mood === 'energetic') {
+      return 'entertainment';
+    } else {
+      return 'creative';
+    }
+  }
+  
+  static generatePrompt(
+    basePrompt: string, 
+    content: string, 
+    style: PodcastCoverStyle
+  ): string {
+    const analysis = this.analyzeContent(content);
     
-    for (const [theme, words] of Object.entries(themeKeywords)) {
-      const matches = words.filter(word => 
-        text.includes(word) || keywords.some(k => k.includes(word))
-      ).length;
-      if (matches >= 2) return theme;
+    let enhancedPrompt = style.promptTemplate
+      .replace('{theme}', analysis.theme)
+      .replace('{mood}', analysis.mood);
+    
+    // Add keywords if relevant
+    if (analysis.keywords.length > 0) {
+      enhancedPrompt += `, featuring elements related to ${analysis.keywords.slice(0, 3).join(', ')}`;
     }
     
-    return 'general discussion';
-  }
-  
-  private static determineMood(text: string): string {
-    const moodIndicators = {
-      optimistic: ['positive', 'exciting', 'amazing', 'great', 'excellent', 'wonderful', 'success', 'growth'],
-      serious: ['important', 'critical', 'significant', 'serious', 'urgent', 'concern', 'issue', 'problem'],
-      curious: ['explore', 'discover', 'question', 'wonder', 'investigate', 'research', 'learn', 'understand'],
-      energetic: ['dynamic', 'fast', 'quick', 'energy', 'active', 'vibrant', 'powerful', 'strong'],
-      calming: ['peaceful', 'calm', 'relaxing', 'gentle', 'quiet', 'mindful', 'meditation', 'wellness']
-    };
-    
-    for (const [mood, indicators] of Object.entries(moodIndicators)) {
-      const matches = indicators.filter(indicator => text.includes(indicator)).length;
-      if (matches >= 1) return mood;
+    // Combine with base prompt if provided
+    if (basePrompt && basePrompt.trim()) {
+      enhancedPrompt = `${basePrompt}, ${enhancedPrompt}`;
     }
     
-    return 'neutral';
-  }
-  
-  private static determineGenre(text: string, keywords: string[]): string {
-    if (text.includes('interview') || text.includes('conversation')) return 'interview';
-    if (text.includes('news') || text.includes('current')) return 'news';
-    if (text.includes('story') || text.includes('narrative')) return 'storytelling';
-    if (text.includes('comedy') || text.includes('humor')) return 'comedy';
-    if (text.includes('review') || text.includes('analysis')) return 'review';
-    if (keywords.some(k => ['tutorial', 'how', 'guide', 'tips'].includes(k))) return 'educational';
-    
-    return 'discussion';
-  }
-  
-  private static determineVisualStyle(theme: string, genre: string, mood: string): string {
-    if (theme === 'technology') return 'modern minimalist';
-    if (theme === 'business') return 'professional corporate';
-    if (theme === 'entertainment') return 'vibrant dynamic';
-    if (theme === 'science') return 'clean scientific';
-    if (mood === 'energetic') return 'bold dynamic';
-    if (mood === 'calming') return 'soft peaceful';
-    if (genre === 'comedy') return 'playful colorful';
-    
-    return 'clean modern';
+    return enhancedPrompt;
   }
 }

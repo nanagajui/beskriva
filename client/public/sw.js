@@ -2,13 +2,13 @@ const CACHE_NAME = 'beskriva-v1';
 const STATIC_CACHE_NAME = 'beskriva-static-v1';
 const DYNAMIC_CACHE_NAME = 'beskriva-dynamic-v1';
 
-// Files to cache immediately
+// Files to cache immediately (using relative paths for production compatibility)
 const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 ];
 
 // API endpoints that should be cached
@@ -59,9 +59,20 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  
+  // Skip cross-origin requests and external APIs (like Lemonfox.ai)
+  if (!request.url.startsWith(self.location.origin)) {
+    return;
+  }
+  
   const url = new URL(request.url);
+  
+  // Skip external API calls to prevent interference with Lemonfox.ai
+  if (url.hostname !== self.location.hostname) {
+    return;
+  }
 
-  // Handle API requests
+  // Handle internal API requests (if any)
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(handleApiRequest(request));
     return;

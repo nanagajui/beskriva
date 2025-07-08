@@ -2,12 +2,12 @@
   "name": "Beskriva - AI Content Creation Studio",
   "short_name": "Beskriva",
   "description": "Transform documents into rich content with Beskriva - PDF processing, AI workflows, Speech-to-Text, Text-to-Speech, Chat, and Image Generation",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6366f1",
   "orientation": "portrait-primary",
-  "scope": "/",
+  "scope": "./",
   "lang": "en",
   "icons": [
     {
@@ -45,7 +45,7 @@
       "name": "Chat",
       "short_name": "Chat",
       "description": "Open chat interface",
-      "url": "/?tab=chat",
+      "url": "./?tab=chat",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -57,7 +57,7 @@
       "name": "AI Workflows",
       "short_name": "Workflows",
       "description": "Document processing workflows",
-      "url": "/?tab=workflow",
+      "url": "./?tab=workflow",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -69,7 +69,7 @@
       "name": "Speech-to-Text",
       "short_name": "STT",
       "description": "Convert speech to text",
-      "url": "/?tab=stt",
+      "url": "./?tab=stt",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -81,7 +81,7 @@
       "name": "Text-to-Speech",
       "short_name": "TTS",
       "description": "Convert text to speech",
-      "url": "/?tab=tts",
+      "url": "./?tab=tts",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -93,7 +93,7 @@
       "name": "Image Generation",
       "short_name": "Images",
       "description": "Generate AI images",
-      "url": "/?tab=image",
+      "url": "./?tab=image",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -103,7 +103,7 @@
     }
   ],
   "share_target": {
-    "action": "/",
+    "action": "./",
     "method": "GET",
     "params": {
       "text": "text"
@@ -114,7 +114,7 @@
   },
   "file_handlers": [
     {
-      "action": "/",
+      "action": "./",
       "accept": {
         "audio/*": [".mp3", ".wav", ".ogg", ".m4a", ".flac"],
         "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
