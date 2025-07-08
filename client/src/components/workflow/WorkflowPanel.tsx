@@ -39,7 +39,15 @@ const statusColors = {
 export default function WorkflowPanel() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   
-  const { currentDocument, workflowTemplates, workflows, currentWorkflow, startWorkflow, clearWorkflow } = useDocumentStore();
+  const { 
+    currentDocument, 
+    workflowTemplates = [], 
+    workflows = [], 
+    currentWorkflow, 
+    startWorkflow, 
+    clearWorkflow,
+    processingStatus = 'idle'
+  } = useDocumentStore();
 
   const handleStartWorkflow = (templateId: string) => {
     if (!currentDocument) {
@@ -116,7 +124,7 @@ export default function WorkflowPanel() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center">
                 <Zap className="h-5 w-5 mr-2" />
-                {currentTemplate?.name || 'Active Workflow'}
+                Active Workflow
               </CardTitle>
               <Badge variant={processingStatus === 'processing' ? 'default' : 'secondary'}>
                 {processingStatus === 'processing' ? 'Running' : 'Paused'}
