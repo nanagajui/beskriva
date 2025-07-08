@@ -1,6 +1,6 @@
-const CACHE_NAME = 'lemonfox-v1';
-const STATIC_CACHE_NAME = 'lemonfox-static-v1';
-const DYNAMIC_CACHE_NAME = 'lemonfox-dynamic-v1';
+const CACHE_NAME = 'beskriva-v1';
+const STATIC_CACHE_NAME = 'beskriva-static-v1';
+const DYNAMIC_CACHE_NAME = 'beskriva-dynamic-v1';
 
 // Files to cache immediately
 const STATIC_FILES = [
@@ -226,18 +226,93 @@ async function doBackgroundSync() {
 }
 
 async function getQueuedActions() {
-  // Implement logic to retrieve queued actions from IndexedDB
-  return [];
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(['queue'], 'readonly');
+    const store = transaction.objectStore('queue');
+    return await store.getAll();
+  } catch (error) {
+    console.error('Failed to get queued actions:', error);
+    return [];
+  }
 }
 
 async function processQueuedAction(action) {
-  // Implement logic to process queued actions
   console.log('Processing queued action:', action);
+  
+  // Process different types of actions
+  switch (action.type) {
+    case 'api_request':
+      await retryApiRequest(action.data);
+      break;
+    case 'file_upload':
+      await retryFileUpload(action.data);
+      break;
+    default:
+      console.warn('Unknown action type:', action.type);
+  }
 }
 
 async function removeQueuedAction(actionId) {
-  // Implement logic to remove processed actions from queue
-  console.log('Removing queued action:', actionId);
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(['queue'], 'readwrite');
+    const store = transaction.objectStore('queue');
+    await store.delete(actionId);
+  } catch (error) {
+    console.error('Failed to remove queued action:', error);
+  }
+}
+
+async function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('beskriva-queue', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('queue')) {
+        const store = db.createObjectStore('queue', { keyPath: 'id', autoIncrement: true });
+        store.createIndex('timestamp', 'timestamp');
+        store.createIndex('type', 'type');
+      }
+    };
+  });
+}
+
+async function retryApiRequest(data) {
+  try {
+    const response = await fetch(data.url, data.options);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    console.log('API request retried successfully');
+  } catch (error) {
+    console.error('API request retry failed:', error);
+    throw error;
+  }
+}
+
+async function retryFileUpload(data) {
+  try {
+    const formData = new FormData();
+    formData.append('file', data.file);
+    
+    const response = await fetch(data.url, {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    console.log('File upload retried successfully');
+  } catch (error) {
+    console.error('File upload retry failed:', error);
+    throw error;
+  }
 }
 
 // Handle push notifications

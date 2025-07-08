@@ -293,7 +293,22 @@ export default function TextToSpeechPanel() {
                   <Button variant="ghost" size="sm" onClick={() => handleDownload(audioUrl)}>
                     <Download className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: 'Generated Audio',
+                          text: `Generated speech from: "${audio.text.substring(0, 50)}..."`,
+                          url: audio.url
+                        });
+                      } else {
+                        navigator.clipboard.writeText(audio.url);
+                        toast({ title: "Audio URL copied to clipboard" });
+                      }
+                    }}
+                  >
                     <Share className="h-4 w-4" />
                   </Button>
                 </div>

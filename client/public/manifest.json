@@ -1,7 +1,7 @@
 {
-  "name": "Lemonfox.ai - AI APIs Dashboard",
-  "short_name": "Lemonfox.ai",
-  "description": "Unified dashboard for Lemonfox.ai APIs - Speech-to-Text, Text-to-Speech, Chat, and Image Generation",
+  "name": "Beskriva - AI Content Creation Studio",
+  "short_name": "Beskriva",
+  "description": "Transform documents into rich content with Beskriva - PDF processing, AI workflows, Speech-to-Text, Text-to-Speech, Chat, and Image Generation",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -46,6 +46,18 @@
       "short_name": "Chat",
       "description": "Open chat interface",
       "url": "/?tab=chat",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "AI Workflows",
+      "short_name": "Workflows",
+      "description": "Document processing workflows",
+      "url": "/?tab=workflow",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -107,13 +119,14 @@
         "audio/*": [".mp3", ".wav", ".ogg", ".m4a", ".flac"],
         "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
         "text/plain": [".txt"],
-        "application/json": [".json"]
+        "application/json": [".json"],
+        "application/pdf": [".pdf"]
       }
     }
   ],
   "protocol_handlers": [
     {
-      "protocol": "web+lemonfox",
+      "protocol": "web+beskriva",
       "url": "/?action=%s"
     }
   ]

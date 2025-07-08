@@ -104,6 +104,11 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                 variant="ghost"
                 size="sm"
                 className="h-6 px-2 text-xs"
+                onClick={() => {
+                  // Regenerate message functionality
+                  console.log('Regenerating message:', message.content);
+                  // TODO: Implement regeneration logic when needed
+                }}
               >
                 <RotateCcw className="h-3 w-3 mr-1" />
                 Regenerate

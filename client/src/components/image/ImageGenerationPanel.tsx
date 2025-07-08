@@ -265,6 +265,18 @@ export default function ImageGenerationPanel() {
                         <Button
                           variant="secondary"
                           size="sm"
+                          onClick={() => {
+                            if (navigator.share) {
+                              navigator.share({
+                                title: 'Generated Image',
+                                text: `Generated with prompt: ${image.prompt}`,
+                                url: image.url
+                              });
+                            } else {
+                              navigator.clipboard.writeText(image.url);
+                              toast({ title: "Image URL copied to clipboard" });
+                            }
+                          }}
                         >
                           <Share className="h-4 w-4" />
                         </Button>

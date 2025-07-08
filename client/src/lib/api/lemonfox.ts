@@ -151,9 +151,9 @@ class LemonfoxAPI {
         index: 0,
       }],
       usage: {
-        prompt_tokens: 0,
-        completion_tokens: 0,
-        total_tokens: 0,
+        prompt_tokens: request.messages.reduce((acc, msg) => acc + Math.ceil(msg.content.length / 4), 0),
+        completion_tokens: Math.ceil(content.length / 4),
+        total_tokens: request.messages.reduce((acc, msg) => acc + Math.ceil(msg.content.length / 4), 0) + Math.ceil(content.length / 4),
       },
     };
   }

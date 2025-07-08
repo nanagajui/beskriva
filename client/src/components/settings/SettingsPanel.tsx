@@ -106,8 +106,10 @@ export default function SettingsPanel() {
   const handleClearCache = () => {
     if (window.confirm("Are you sure you want to clear all cached data? This action cannot be undone.")) {
       // Clear various caches
-      localStorage.removeItem('lemonfox-chat-history');
-      localStorage.removeItem('lemonfox-audio-cache');
+      localStorage.removeItem('beskriva-chat-history');
+      localStorage.removeItem('beskriva-audio-cache');
+      localStorage.removeItem('beskriva-image-cache');
+      localStorage.removeItem('beskriva-document-cache');
       localStorage.removeItem('lemonfox-image-cache');
       
       toast({
@@ -135,7 +137,10 @@ export default function SettingsPanel() {
     }
   };
 
-  const storageUsed = 12.5; // MB - This would be calculated from actual usage
+  const storageUsed = Math.round(
+    (JSON.stringify(localStorage).length + 
+     (navigator.storage && navigator.storage.estimate ? 0 : 0)) / (1024 * 1024) * 100
+  ) / 100; // Calculate actual localStorage usage in MB
   const storagePercent = Math.min((storageUsed / 50) * 100, 100); // Assuming 50MB limit
 
   return (
