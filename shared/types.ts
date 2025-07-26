@@ -14,6 +14,20 @@ export interface AppSettings {
   timeout: number;
 }
 
+export type Chat = {
+  id: number;
+  userId: number;
+  createdAt: Date;
+};
+
+export type Message = {
+  id: number;
+  chatId: number;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: Date;
+};
+
 // ============================================================================
 // API Types (Lemonfox.ai Integration)
 // ============================================================================
@@ -60,17 +74,8 @@ export interface SpeechRequest {
 }
 
 // Chat API Types
-export interface ChatMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: Date;
-  id?: string;
-  image?: string;
-  name?: string;
-}
-
 export interface ChatCompletionRequest {
-  messages: ChatMessage[];
+  messages: Message[];
   model: string;
   temperature?: number;
   max_tokens?: number;

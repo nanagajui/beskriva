@@ -77,7 +77,8 @@ beskriva/
 │   └── public/            # Static assets and service worker
 ├── server/                # Express.js backend
 ├── shared/                # Shared types and schemas
-└── src-tauri/            # Tauri desktop app configuration
+├── src-tauri/             # Tauri desktop app configuration
+└── PLAN.md                # Development plan for upcoming features
 ```
 
 ## 📋 Features in Detail
@@ -150,6 +151,12 @@ npm run db:migrate
 - Capacitor for mobile apps
 - Tauri for desktop applications
 - Service Worker for offline functionality
+
+## 🚀 Future Development
+
+The next major development phase involves building out the backend to support user accounts and server-side data persistence. This will enable multi-device synchronization and open the door for collaborative features.
+
+See the [PLAN.md](PLAN.md) file for a detailed development roadmap.
 
 ## 🎨 UI Components
 
